@@ -32,6 +32,7 @@ RUN curl -s http://mirror.olnevhost.net/pub/apache/maven/binaries/apache-maven-3
 RUN cd /usr/local && ln -s apache-maven-3.2.1 maven
 ENV MAVEN_HOME /usr/local/maven
 ENV PATH $MAVEN_HOME/bin:$PATH
+RUN export MAVEN_OPTS="-Xmx2048m -XX:MaxPermSize=512m"
 
             
 # clone and compile hive
