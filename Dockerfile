@@ -1,4 +1,4 @@
-FROM prasanthj/docker-hadoop
+FROM scality/hadoop
 
 MAINTAINER Sharad Agarwal
 #Based on Inmobi Hive
