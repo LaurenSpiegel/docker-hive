@@ -1,7 +1,7 @@
 FROM scality/hadoop
 
-MAINTAINER Sharad Agarwal
-#Based on Inmobi Hive
+MAINTAINER Lauren Spiegel
+#Installs Hive
 #Builds the InMobi Hive from trunk
 #Configure Postgres DB
 #Starts Hive metastore Server
@@ -10,7 +10,7 @@ MAINTAINER Sharad Agarwal
 
 # to configure postgres as hive metastore backend
 RUN apt-get update
-RUN apt-get -yq install vim postgresql-9.3 libpostgresql-jdbc-java
+RUN apt-get -yq install vim postgresql-9.3 libpostgresql-jdbc-java net-tools
 
 # create metastore db, hive user and assign privileges
 USER postgres
@@ -26,20 +26,12 @@ USER root
 # dev tools to build
 RUN apt-get update
 RUN apt-get install -y git libprotobuf-dev protobuf-compiler
-
-# install maven
-RUN curl -s http://mirror.olnevhost.net/pub/apache/maven/binaries/apache-maven-3.2.1-bin.tar.gz | tar -xz -C /usr/local/
-RUN cd /usr/local && ln -s apache-maven-3.2.1 maven
-ENV MAVEN_HOME /usr/local/maven
-ENV PATH $MAVEN_HOME/bin:$PATH
-RUN export MAVEN_OPTS="-Xmx2048m -XX:MaxPermSize=512m"
-
             
-# clone and compile hive
-ENV HIVE_VERSION 0.13.4-inm-SNAPSHOT
-RUN cd /usr/local && git clone https://github.com/InMobi/hive.git
-RUN cd /usr/local/hive && /usr/local/maven/bin/mvn clean install -DskipTests -Phadoop-2,dist
-RUN mkdir /usr/local/hive-dist && tar -xf /usr/local/hive/packaging/target/apache-hive-${HIVE_VERSION}-bin.tar.gz -C /usr/local/hive-dist
+# install hive
+ENV HIVE_VERSION=2.1.1
+RUN curl -o /usr/local/hive-${HIVE_VERSION}.tar.gz "http://apache.cs.utah.edu/hive/hive-${HIVE_VERSION}/apache-hive-${HIVE_VERSION}-bin.tar.gz"
+RUN ls /usr/local
+RUN mkdir -p /usr/local/hive-dist && tar -xzvf "/usr/local/hive-${HIVE_VERSION}.tar.gz" -C /usr/local/hive-dist
 
 # set hive environment
 ENV HIVE_HOME /usr/local/hive-dist/apache-hive-${HIVE_VERSION}-bin
@@ -54,6 +46,7 @@ ENV PGPASSWORD hive
 
 # initialize hive metastore db
 RUN /etc/init.d/postgresql start &&\
+	sleep 60 &&\
 	cd $HIVE_HOME/scripts/metastore/upgrade/postgres/ &&\
  	psql -h localhost -U hive -d metastore -f hive-schema-0.13.0.postgres.sql
 
