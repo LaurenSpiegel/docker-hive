@@ -29,6 +29,8 @@ RUN apt-get install -y git libprotobuf-dev protobuf-compiler
             
 # install hive
 ENV HIVE_VERSION=2.1.1
+ENV HIVE_SCHEMA_VERSION=2.1.0
+RUN echo "http://apache.cs.utah.edu/hive/hive-${HIVE_VERSION}/apache-hive-${HIVE_VERSION}-bin.tar.gz"
 RUN curl -o /usr/local/hive-${HIVE_VERSION}.tar.gz "http://apache.cs.utah.edu/hive/hive-${HIVE_VERSION}/apache-hive-${HIVE_VERSION}-bin.tar.gz"
 RUN ls /usr/local
 RUN mkdir -p /usr/local/hive-dist && tar -xzvf "/usr/local/hive-${HIVE_VERSION}.tar.gz" -C /usr/local/hive-dist
@@ -45,10 +47,11 @@ RUN ln -s /usr/share/java/postgresql-jdbc4.jar $HIVE_HOME/lib/postgresql-jdbc4.j
 ENV PGPASSWORD hive
 
 # initialize hive metastore db
+RUN ls -l $HIVE_HOME/scripts/metastore/upgrade/postgres/
 RUN /etc/init.d/postgresql start &&\
 	sleep 60 &&\
 	cd $HIVE_HOME/scripts/metastore/upgrade/postgres/ &&\
- 	psql -h localhost -U hive -d metastore -f hive-schema-0.13.0.postgres.sql
+ 	psql -h localhost -U hive -d metastore -f hive-schema-${HIVE_SCHEMA_VERSION}.postgres.sql
 
 # copy config, sql, data files to /opt/files
 RUN mkdir /opt/files
