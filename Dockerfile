@@ -59,8 +59,6 @@ ADD hive-site.xml /opt/files/
 ADD hive-log4j.properties /opt/files/
 ADD hive-site.xml $HIVE_CONF/hive-site.xml
 ADD hive-log4j.properties $HIVE_CONF/hive-log4j.properties
-ADD store_sales.* /opt/files/
-ADD datagen.py /opt/files/
 
 # set permissions for hive bootstrap file
 ADD hive-bootstrap.sh /etc/hive-bootstrap.sh
